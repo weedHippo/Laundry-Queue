@@ -1,4 +1,4 @@
-package gui.dashboard;
+package gui.pages;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

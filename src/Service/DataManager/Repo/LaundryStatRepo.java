@@ -1,17 +1,17 @@
 package Service.DataManager.Repo;
 
-import Model.Customer;
+import Model.LaundryStat;
 
-public class LaundryStatRepo implements Repository<Customer> {
+public class LaundryStatRepo implements Repository<LaundryStat> {
 
 
     @Override
-    public void addEntry(Customer item) {
+    public void addEntry(LaundryStat item) {
 
     }
 
     @Override
-    public void updateEntry(Customer item) {
+    public void updateEntry(LaundryStat item) {
 
     }
 
@@ -21,7 +21,7 @@ public class LaundryStatRepo implements Repository<Customer> {
     }
 
     @Override
-    public Customer findById(int id) {
+    public LaundryStat findById(int id) {
         return null;
     }
 }

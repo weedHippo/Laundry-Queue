@@ -1,5 +1,5 @@
 
-package gui.dashboard;
+package gui.pages;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
