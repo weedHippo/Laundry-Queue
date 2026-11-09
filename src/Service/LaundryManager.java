@@ -1,10 +1,6 @@
 package Service;
-import Model.*;
-
 
 public class LaundryManager {
+    public String printName(String n){return "the name is: " + n;}
 
-    public LaundryManager(){
-
-    }
 }

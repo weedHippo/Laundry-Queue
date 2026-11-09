@@ -2,6 +2,8 @@ package Service.DataManager.Repo;
 
 import Model.Customer;
 
+import java.util.List;
+
 public class ServiceRepo implements Repository<Customer> {
 
 
@@ -21,7 +23,14 @@ public class ServiceRepo implements Repository<Customer> {
     }
 
     @Override
-    public Customer findById(int id) {
+    public Customer findById(int T) {
         return null;
     }
+
+    @Override
+    public List<Customer> findAll() {
+        return List.of();
+    }
+
+
 }

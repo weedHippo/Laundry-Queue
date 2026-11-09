@@ -1,28 +1,34 @@
 package Model;
 
 public class Customer {
+   private String customerName;
+   private String customerContact;
+   private int customerId;
 
-    private int customerId;
-    private String customerName;
-    private String contactNumber;
-
-    public Customer(int customerId, String customerName, String contactNumber) {
-        this.contactNumber = contactNumber;
-        this.customerId = customerId;
+    public Customer(int customerId, String customerName, String customerContact) {
         this.customerName = customerName;
-    }
-
-    public int getCustomerId() {
-        return customerId;
+        this.customerContact = customerContact;
+        this.customerId = this.customerId;
     }
 
     public String getCustomerName() {
         return customerName;
     }
 
-    public String getContactNumber() {
-        return contactNumber;
+    public String getCustomerContact() {
+        return customerContact;
     }
 
+    public int getCustomerId() {
+        return customerId;
+    }
 
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
+
+    @Override
+    public String toString() {
+        return customerName;
+    }
 }

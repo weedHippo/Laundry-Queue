@@ -1,17 +1,19 @@
 package Service.DataManager.Repo;
 
-import Model.LaundryStat;
+import Model.Customer;
 
-public class LaundryStatRepo implements Repository<LaundryStat> {
+import java.util.List;
+
+public class LaundryStatRepo implements Repository<Customer> {
 
 
     @Override
-    public void addEntry(LaundryStat item) {
+    public void addEntry(Customer item) {
 
     }
 
     @Override
-    public void updateEntry(LaundryStat item) {
+    public void updateEntry(Customer item) {
 
     }
 
@@ -21,7 +23,12 @@ public class LaundryStatRepo implements Repository<LaundryStat> {
     }
 
     @Override
-    public LaundryStat findById(int id) {
+    public Customer findById(int id) {
         return null;
+    }
+
+    @Override
+    public List<Customer> findAll() {
+        return List.of();
     }
 }

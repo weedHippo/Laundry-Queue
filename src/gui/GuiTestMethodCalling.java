@@ -17,7 +17,7 @@ public class GuiTestMethodCalling extends JFrame {
 
         super("Laundry System");
 
-        service = new LaundryManager();
+        //service = new LaundryManager();
         nameField = new JTextField(15);
         registerButton = new JButton("Register");
         resultLabel = new JLabel("Waiting...");
@@ -40,6 +40,7 @@ public class GuiTestMethodCalling extends JFrame {
     }
 
     // Method called by ActionListener
+    /*
     private void registerCustomer() {
 
         String name = nameField.getText();
@@ -53,4 +54,6 @@ public class GuiTestMethodCalling extends JFrame {
         GuiTestMethodCalling lg = new GuiTestMethodCalling();
         lg.registerCustomer();
     }
+
+     */
 }

@@ -1,101 +1,79 @@
 package Service.DataManager.Repo;
 
 import Model.Customer;
-import Service.DataManager.*;
-import java.sql.*;
+import Service.DataManager.DataConnections;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomerRepo implements Repository<Customer> {
 
+
     @Override
     public void addEntry(Customer item) {
+        String sql = "INSERT INTO CUSTOMER (CUSTOMER_NAME, CONTACT_NUMBER) VALUES (?,?)";
 
-        String sql = "INSERT INTO CUSTOMER (CUSTOMER_NAME, CONTACT_NUMBER) VALUES (?, ?)";
-
-        try (
+        try(
                 Connection conn = DataConnections.getConnection();
-                PreparedStatement prep = conn.prepareStatement(sql)
-        ) {
+                PreparedStatement prep = conn.prepareStatement(sql, new String[]{"CUSTOMER_ID"})
+                ){
+            prep.setString(1,item.getCustomerName());
+            prep.setString(2, item.getCustomerContact());
+            int rows = prep.executeUpdate();
+            System.out.println("Rows inserted: " + rows);
 
-            // Set values from the model
-            prep.setString(1, item.getCustomerName());
-            prep.setString(2, item.getContactNumber());
+            try(ResultSet rs = prep.getGeneratedKeys()){
+                if(rs.next()){
+                    item.setCustomerId(rs.getInt(1));
+                }
+            }
 
-            prep.executeUpdate();
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        }catch(SQLException se){
+            System.out.println(se.getMessage());
         }
     }
 
     @Override
     public void updateEntry(Customer item) {
 
-        String sql = "UPDATE CUSTOMER SET CUSTOMER_NAME = ?, CONTACT_NUMBER = ? WHERE CUSTOMER_ID = ?";
-
-        try (
-                Connection conn = DataConnections.getConnection();
-                PreparedStatement prep = conn.prepareStatement(sql)
-        ) {
-
-            prep.setString(1, item.getCustomerName());
-            prep.setString(2, item.getContactNumber());
-            prep.setInt(3, item.getCustomerId());
-
-            prep.executeUpdate();
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     @Override
     public void deleteEntry(int id) {
 
-        String sql = "DELETE FROM CUSTOMER WHERE CUSTOMER_ID = ?";
-
-        try (
-                Connection conn = DataConnections.getConnection();
-                PreparedStatement prep = conn.prepareStatement(sql)
-        ) {
-
-            prep.setInt(1, id);
-
-            prep.executeUpdate();
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     @Override
     public Customer findById(int id) {
+        return null;
+    }
 
-        String sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID = ?";
+    @Override
+    public List<Customer> findAll() {
+        List<Customer> customers = new ArrayList<>();
+        String sql = "SELECT CUSTOMER_ID, CUSTOMER_NAME, CONTACT_NUMBER FROM CUSTOMER ORDER BY CUSTOMER_NAME";
 
         try (
                 Connection conn = DataConnections.getConnection();
-                PreparedStatement prep = conn.prepareStatement(sql)
+                PreparedStatement prep = conn.prepareStatement(sql);
+                ResultSet rs = prep.executeQuery()
         ) {
+            while (rs.next()) {
+                customers.add(new Customer(
+                        rs.getInt("CUSTOMER_ID"),
+                        rs.getString("CUSTOMER_NAME"),
+                        rs.getString("CONTACT_NUMBER")
+                ));
 
-            prep.setInt(1, id);
-
-            try (ResultSet rs = prep.executeQuery()) {
-
-                if (rs.next()) {
-
-                    // Convert database row into an object
-                    return new Customer(
-                            rs.getInt("CUSTOMER_ID"),
-                            rs.getString("CUSTOMER_NAME"),
-                            rs.getString("CONTACT_NUMBER")
-                    );
-                }
             }
-
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
-        return null;
+        return customers;
     }
 }

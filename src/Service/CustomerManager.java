@@ -1,30 +1,23 @@
 package Service;
+
 import Model.Customer;
+import Service.DataManager.Repo.CustomerRepo;
 
 public class CustomerManager {
+    private final CustomerRepo repo = new CustomerRepo();
+    private int tempId = 0;
 
-    public void registerCustomer(String cstName, String cstContacts) throws IllegalAccessException {
-       if(cstName == null || cstName.isEmpty()){
-           throw new IllegalArgumentException(
-                   "customer Entry cannot be empty"
-           );
-       }
+    public void addCustomer(String cstName, String cstContact) {
+        if (cstName == null || cstName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Please enter the customer's name.");
+        }
+        if (cstContact == null || cstContact.trim().isEmpty()) {
+            throw new IllegalArgumentException("Please enter a contact number.");
+        }
+        if(!cstName.matches("[A-Za-z ]+")){
+            throw new IllegalArgumentException("No symbold and numbers 1-9 /*-+.");
+        }
 
-       if(cstContacts == null || cstContacts.isEmpty()){
-           throw new IllegalArgumentException(
-                   "Costumer Contact Information Cannot be empty"
-           );
-       }
-
-       if(cstName.matches("[a-zA-Z]+")){
-           throw new IllegalArgumentException(
-                   "Customer Name Can't Contain Symbols or Numbers (/*-+, or 12345)"
-           );
-       }
-
-        System.out.println("All passed");
-
+        repo.addEntry(new Customer(tempId,cstName,cstContact));
     }
-
-
 }
