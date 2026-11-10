@@ -1,8 +1,8 @@
-package gui;
+package App.Dubuggers;
 
 import javax.swing.*;
 
-import Service.LaundryManager;
+import Service.Managers.LaundryAssignmentManager;
 
 public class GuiTestMethodCalling extends JFrame {
 
@@ -10,7 +10,7 @@ public class GuiTestMethodCalling extends JFrame {
     private JTextField nameField;
     private JButton registerButton;
     private JLabel resultLabel;
-    private LaundryManager service;
+    private LaundryAssignmentManager service;
 
     // Constructor
     public GuiTestMethodCalling() {

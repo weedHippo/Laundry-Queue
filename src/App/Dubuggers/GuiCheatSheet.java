@@ -1,4 +1,4 @@
-package App;
+package App.Dubuggers;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
