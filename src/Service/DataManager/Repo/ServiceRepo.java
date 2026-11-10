@@ -22,10 +22,6 @@ public class ServiceRepo implements Repository<Customer> {
 
     }
 
-    @Override
-    public Customer findById(int T) {
-        return null;
-    }
 
     @Override
     public List<Customer> findAll() {

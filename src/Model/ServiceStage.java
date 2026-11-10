@@ -1,11 +1,12 @@
 package Model;
 
+
+//This enums is to trigger specific
 public enum ServiceStage {
-    LOADING,
+    QUEUED,
     WASHING,
-    FINISHED,
-    SWITCHING,
+    TRANSFERRING,
     DRYING,
-    DONE,
+    COMPLETED,
     CANCELED
 }

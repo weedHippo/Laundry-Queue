@@ -1,7 +1,7 @@
 package gui;
 
-import gui.dashboard.DashboardPage;
-import gui.dashboard.MachineStatus;
+import gui.pages.DashboardPage;
+import gui.pages.MachineStatus;
 
 import javax.swing.*;
 import java.awt.*;

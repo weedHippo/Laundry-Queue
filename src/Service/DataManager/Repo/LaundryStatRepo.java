@@ -23,11 +23,6 @@ public class LaundryStatRepo implements Repository<Customer> {
     }
 
     @Override
-    public Customer findById(int id) {
-        return null;
-    }
-
-    @Override
     public List<Customer> findAll() {
         return List.of();
     }
