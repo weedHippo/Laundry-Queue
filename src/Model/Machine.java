@@ -7,7 +7,7 @@ public class Machine {
     private MachineType machineType;
     private MachineState machineState;
 
-    public Machine(int machineId, double machineCapacity, MachineType machineType,MachineState machineState) {
+    public Machine(int machineId, double machineCapacity, MachineType machineType, MachineState machineState) {
         this.machineId = machineId;
         this.machineType = machineType;
         this.machineState = machineState;
@@ -40,6 +40,7 @@ public class Machine {
 
     @Override
     public String toString() {
-        return machineId + " - " + machineType;
+        return machineId + " - " + machineType
+                + " - " + machineState;
     }
 }

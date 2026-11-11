@@ -2,9 +2,10 @@ package Model;
 
 public enum MachineState {
     AVAILABLE("Available"),
-    IN_USE("Occupied"),
+    IN_USE("In_Use"),
     MAINTENANCE("Maintenance"),
-    OUT_OF_SERVICE("Broken");
+    OUT_OF_SERVICE("Out_Of_Service"),
+    TRANSFER("Transfer");
 
     private final String macState;
 

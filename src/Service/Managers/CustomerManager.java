@@ -14,9 +14,11 @@ public class CustomerManager {
         if (cstName == null || cstName.trim().isEmpty()) {
             throw new IllegalArgumentException("Please enter the customer's name.");
         }
+
         if (cstContact == null || cstContact.trim().isEmpty()) {
             throw new IllegalArgumentException("Please enter a contact number.");
         }
+        //Validate String input, check if it has a symbol or numbers
         if(!cstName.matches("[A-Za-z ]+")){
             throw new IllegalArgumentException("No symbold and numbers 1-9 /*-+.");
         }
@@ -60,4 +62,5 @@ public class CustomerManager {
         cstRepo.deleteEntry(cstId);
 
     }
+
 }
