@@ -8,10 +8,12 @@ import Service.DataManager.DataConnections;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LaundryStatRepo implements Repository<Load> {
+public class LaundryStatRepo implements AssRepo<Load> {
     MachineRepo mr = new MachineRepo();
     List<Machine> lm = mr.findAll();
     Machine selected = lm.get(0);
@@ -19,16 +21,17 @@ public class LaundryStatRepo implements Repository<Load> {
 
     @Override
     public void addEntry(Load item) {
-        String sql = "INSERT INTO LAUNDRY_LOADS (CUSTOMER_ID, WEIGHT_KG, QUEUE_STATUS, RECEIVED_AT) VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO LAUNDRY_LOADS(CUSTOMER_ID, WEIGHT_KG, QUEUE_STATUS, RECEIVED_AT) VALUES (?,?,?,?)";
         try(
                 Connection conn = DataConnections.getConnection();
                 PreparedStatement  ps = conn.prepareStatement(sql);
                 ){
             ps.setInt(1, machineId);
-            //ps.setInt(2,item.getL);
-
-
-
+            ps.setDouble(2,item.getLoadWeight());
+            ps.setString(3,item.getLoadStat().toString());
+            ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+            int row = ps.executeUpdate();
+            System.out.println("Rows affected: " + row );
 
         }catch (SQLException e){
             System.out.println(e.getMessage());
@@ -38,7 +41,44 @@ public class LaundryStatRepo implements Repository<Load> {
 
     @Override
     public void updateEntry(Load item) {
+        String sql = "UPDATE LAUNDRY_LOADS SET WEIGHT_KG = ?, QUEUE_STATUS = ? WHERE LOAD_ID = ?";
 
+        try (
+            Connection conn = DataConnections.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            // Set parameters here
+            ps.setDouble(1, item.getLoadWeight());
+            ps.setString(2, item.getLoadStat().toString());
+
+            int rows = ps.executeUpdate();
+            System.out.println("Rows affected: " + rows);
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    @Override
+    public void updateEntryState(Load item) {
+        String sql = "UPDATE LAUNDRY_LOADS SET QUEUE_STATUS = ? WHERE LOAD_ID = ?";
+        
+        try (
+            Connection conn = DataConnections.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+
+            ps.setString(1, item.getLoadStat().toString());
+            ps.setInt(2, item.getLoadId());
+        
+            int rows = ps.executeUpdate();
+            System.out.println("Rows affected: " + rows);
+        
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        
     }
 
     @Override
