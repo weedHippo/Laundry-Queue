@@ -1,9 +1,8 @@
 package Model;
 
-
-//This enums is to trigger specific
 public enum ServiceStage {
-    QUEUED("Waiting"),
+    QUEUED_WASHER("Waiting_Washer"),
+    QUEUED_DRYER("Waiting_Dryer"),
     WASHING("Washing"),
     TRANSFER("Transferring"),
     DRYING("Drying"),

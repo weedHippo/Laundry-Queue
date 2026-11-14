@@ -3,12 +3,11 @@ package Service.DataManager.Repo;
 
 import Model.Load;
 import Model.Machine;
+import Model.ServiceStage;
 import Service.DataManager.DataConnections;
+import oracle.sql.TIMESTAMP;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +87,60 @@ public class LaundryStatRepo implements AssRepo<Load> {
 
     @Override
     public List<Load> findAll() {
-        return List.of();
+
+        String sql = "SELECT LOAD_ID,CUSTOMER_ID,WEIGHT_KG,QUEUE_STATUS,RECEIVED_AT FROM LAUNDRY_LOADS ORDER BY RECEIVED_AT";
+        List<Load> loadAss = new ArrayList<>();
+        try (
+            Connection conn = DataConnections.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+        ) {
+
+                while (rs.next()) {
+                    Object recieveAt;
+                    loadAss.add(new Load(
+                            rs.getInt("LOAD_ID"),
+                            rs.getInt("CUSTOMER_ID"),
+                            rs.getDouble("WEIGHT_KG"),
+                            ServiceStage.valueOf(rs.getString("QUEUE_STATUS")),
+                            rs.getTimestamp("RECEIVE_AT").toLocalDateTime()
+                    ));
+                }
+
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return loadAss;
+    }
+
+    @Override
+    public Load findById(int id) {
+        String sql = "SELECT * FROM LAUNDRY_LOADS WHERE LOAD_ID = ?";
+
+        try (
+                Connection conn = DataConnections.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Load(
+                            rs.getInt("LOAD_ID"),
+                            rs.getInt("CUSTOMER_ID"),
+                            rs.getDouble("WEIGHT_KG"),
+                            ServiceStage.valueOf(rs.getString("QUEUE_STATUS")),
+                            rs.getTimestamp("RECEIVED_AT").toLocalDateTime()
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return null;
     }
 }

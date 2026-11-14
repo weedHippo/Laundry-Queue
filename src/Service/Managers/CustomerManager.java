@@ -8,7 +8,7 @@ import java.util.List;
 
 public class CustomerManager {
     private final CustomerRepo repo = new CustomerRepo();
-    private int tempId = 0;
+    private final int TEMP_ID = 0;
 
     public void addCustomer(String cstName, String cstContact) {
         if (cstName == null || cstName.trim().isEmpty()) {
@@ -23,15 +23,19 @@ public class CustomerManager {
             throw new IllegalArgumentException("No symbold and numbers 1-9 /*-+.");
         }
 
-        repo.addEntry(new Customer(tempId,cstName,cstContact));
+        repo.addEntry(new Customer(TEMP_ID,cstName,cstContact));
     }
 
+
+    //not working?
     public void updateCustomer(int cstId, String newName, String newContact){
         CustomerRepo cstRepo = new CustomerRepo();
         List<Customer> customers = repo.findAll();
 
         boolean notFound = customers.stream().noneMatch(cst ->cst.getCustomerId() == cstId);
 
+
+        //triggering
         if(notFound){
             throw new InsufficientCostumerInformationException("The Customer doesn't Exist");
         }

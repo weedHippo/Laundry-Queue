@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MachineRepo implements Repository<Machine>{
+public class MachineRepo implements MachAssRepoInt<Machine>{
 
     @Override
     public void addEntry(Machine item) {
@@ -73,6 +73,37 @@ public class MachineRepo implements Repository<Machine>{
             System.out.println(e.getMessage());
         }
 
+    }
+    @Override
+    public Machine findById(int id) {
+
+        String sql = "SELECT * FROM MACHINE_ASSIGNMENTS WHERE ASSIGNMENT_ID = ?";
+
+        try (
+                Connection conn = DataConnections.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+
+            // IMPORTANT: Bind the ID before executing
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return new Machine(
+                            rs.getInt("MACHINE_ID"),
+                            rs.getDouble("CAPACITY_KG"),
+                            MachineType.valueOf(rs.getString("MACHINE_TYPE").trim().toUpperCase()),
+                            MachineState.valueOf(rs.getString("OPERATIONAL_STATUS").trim().toUpperCase())
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find machine assignment", e);
+        }
+
+        return null; // Assignment not found
     }
 
     @Override

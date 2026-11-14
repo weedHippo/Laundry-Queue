@@ -7,5 +7,6 @@ public interface AssRepo<T> {
     void updateEntry(T item);
     void updateEntryState(T item);
     void deleteEntry(int id);
+    T findById(int id);
     List<T> findAll();
 }
