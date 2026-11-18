@@ -1,3 +1,4 @@
+
 package AxedGui.pages;
 
 import javax.swing.*;
@@ -9,6 +10,8 @@ import java.awt.event.ActionListener;
 public class DashboardPage extends JPanel implements ActionListener {
 
     private Runnable onChangePage;
+    private Runnable onRegister;
+    private Runnable onRecords;
     public ImageIcon appIcon;
 
     private JButton machineButton;
@@ -54,7 +57,6 @@ public class DashboardPage extends JPanel implements ActionListener {
         menuPanel.add(registerButton);
         menuPanel.add(recordsButton);
 
-        // Center menu without stretching buttons
         JPanel menuWrapper = new JPanel(
                 new FlowLayout(FlowLayout.CENTER, 0, 60)
         );
@@ -73,12 +75,27 @@ public class DashboardPage extends JPanel implements ActionListener {
         this.onChangePage = action;
     }
 
+    public void setOnRegister(Runnable action) {
+        this.onRegister = action;
+    }
+
+    public void setOnRecords(Runnable action) {
+        this.onRecords = action;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
+
         if (e.getSource() == machineButton) {
-            if (onChangePage != null) {
-                onChangePage.run();
-            }
+            if (onChangePage != null) onChangePage.run();
+        }
+
+        else if (e.getSource() == registerButton) {
+            if (onRegister != null) onRegister.run();
+        }
+
+        else if (e.getSource() == recordsButton) {
+            if (onRecords != null) onRecords.run();
         }
     }
 }
