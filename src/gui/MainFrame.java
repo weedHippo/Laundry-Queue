@@ -1,10 +1,10 @@
 
-package AxedGui;
+package gui;
 
-import AxedGui.pages.DashboardPage;
-import AxedGui.pages.MachineStatus;
-import AxedGui.pages.RegistrationPage;
-import AxedGui.pages.RecordsPage;
+import gui.pages.DashboardPage;
+import gui.pages.MachineStatus;
+import gui.pages.RegistrationPage;
+import gui.pages.RecordsPage;
 
 import javax.swing.*;
 import java.awt.*;

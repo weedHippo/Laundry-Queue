@@ -1,5 +1,5 @@
 
-package AxedGui.pages;
+package gui.pages;
 
 import Model.Customer;
 import Model.ServiceType;
