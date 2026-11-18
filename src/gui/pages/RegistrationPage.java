@@ -8,9 +8,11 @@ import Service.Managers.LaundryAssignmentManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
-public class RegistrationPage extends JPanel {
+public class RegistrationPage extends JPanel implements ActionListener {
 
     private final CustomerManager customerManager = new CustomerManager();
     private final LaundryAssignmentManager laundryManager =
@@ -26,6 +28,10 @@ public class RegistrationPage extends JPanel {
     private final JComboBox<ServiceType> serviceCombo =
             new JComboBox<>(ServiceType.values());
 
+    private final JButton backButton = new JButton("Back to Dashboard");
+    private final JButton addCustomerButton = new JButton("Add Customer");
+    private final JButton registerButton = new JButton("Register Laundry");
+
     private Runnable onBack;
 
     public RegistrationPage() {
@@ -34,12 +40,7 @@ public class RegistrationPage extends JPanel {
         JLabel title = new JLabel("Customer Registration");
         title.setFont(new Font("SansSerif", Font.BOLD, 24));
 
-        JButton backButton = new JButton("Back to Dashboard");
-        backButton.addActionListener(e -> {
-            if (onBack != null) {
-                onBack.run();
-            }
-        });
+        backButton.addActionListener(this);
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(backButton, BorderLayout.WEST);
@@ -56,7 +57,6 @@ public class RegistrationPage extends JPanel {
         form.add(new JLabel("Contact Number:"));
         form.add(contactField);
 
-        JButton addCustomerButton = new JButton("Add Customer");
         form.add(new JLabel());
         form.add(addCustomerButton);
 
@@ -69,14 +69,13 @@ public class RegistrationPage extends JPanel {
         form.add(new JLabel("Service Type:"));
         form.add(serviceCombo);
 
-        JButton registerButton = new JButton("Register Laundry");
         form.add(new JLabel());
         form.add(registerButton);
 
         add(form, BorderLayout.CENTER);
 
-        addCustomerButton.addActionListener(e -> addCustomer());
-        registerButton.addActionListener(e -> registerLaundry());
+        addCustomerButton.addActionListener(this);
+        registerButton.addActionListener(this);
 
         refreshCustomers();
     }
@@ -172,5 +171,16 @@ public class RegistrationPage extends JPanel {
 
     public void setOnBack(Runnable action) {
         this.onBack = action;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        if (event.getSource() == backButton) {
+            if (onBack != null) onBack.run();
+        } else if (event.getSource() == addCustomerButton) {
+            addCustomer();
+        } else if (event.getSource() == registerButton) {
+            registerLaundry();
+        }
     }
 }

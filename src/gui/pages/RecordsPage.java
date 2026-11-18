@@ -2,12 +2,16 @@
 package gui.pages;
 
 import Model.Load;
-import Model.ServiceStage;
 import Service.Managers.LaundryAssignmentManager;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Pattern;
 
 public class RecordsPage extends JPanel {
 
@@ -23,6 +27,9 @@ public class RecordsPage extends JPanel {
     };
 
     private final JTable table = new JTable(model);
+    private final TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+    private static final DateTimeFormatter RECORD_TIME =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private Runnable onBack;
 
     public RecordsPage() {
@@ -36,70 +43,56 @@ public class RecordsPage extends JPanel {
         JButton refresh = new JButton("Refresh");
         refresh.addActionListener(e -> refreshRecords());
 
-        JPanel header = new JPanel();
-        header.add(new JLabel("Laundry Records"));
-        header.add(refresh);
-        header.add(back);
+        JTextField search = new JTextField(20);
+        JPanel header = new JPanel(new BorderLayout(8, 8));
+        header.add(new JLabel("Laundry Records"), BorderLayout.WEST);
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        searchPanel.add(new JLabel("Search:"));
+        searchPanel.add(search);
+        header.add(searchPanel, BorderLayout.CENTER);
+        JPanel headerButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
+        headerButtons.add(refresh);
+        headerButtons.add(back);
+        header.add(headerButtons, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
         table.setRowHeight(28);
+        table.setRowSorter(sorter);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        JPanel actions = new JPanel(new GridLayout(2, 3, 10, 10));
-
-        JTextField loadId = new JTextField();
-        JTextField weight = new JTextField();
-        JComboBox<ServiceStage> status =
-                new JComboBox<>(ServiceStage.values());
-
+        JTextField weight = new JTextField(10);
         JButton updateWeight = new JButton("Update Weight");
-        JButton updateStatus = new JButton("Update Status");
-
-        actions.add(new JLabel("Load ID:"));
-        actions.add(loadId);
-        actions.add(new JLabel("New Weight (KG):"));
-        actions.add(weight);
-        actions.add(new JLabel("New Status:"));
-        actions.add(status);
-
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(actions, BorderLayout.CENTER);
-
-        JPanel buttons = new JPanel();
-        buttons.add(updateWeight);
-        buttons.add(updateStatus);
-        bottom.add(buttons, BorderLayout.SOUTH);
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        bottom.add(new JLabel("Select a record, then new weight (KG):"));
+        bottom.add(weight);
+        bottom.add(updateWeight);
+        bottom.add(new JLabel("Status is changed by machine actions."));
         add(bottom, BorderLayout.SOUTH);
 
-        table.getSelectionModel().addListSelectionListener(e -> {
-            int row = table.getSelectedRow();
-            if (!e.getValueIsAdjusting() && row >= 0) {
-                loadId.setText(table.getValueAt(row, 0).toString());
+        search.getDocument().addDocumentListener(new DocumentListener() {
+            private void filter() {
+                String text = search.getText().trim();
+                sorter.setRowFilter(text.isEmpty()
+                        ? null
+                        : RowFilter.regexFilter("(?i)" + Pattern.quote(text)));
             }
+            @Override public void insertUpdate(DocumentEvent e) { filter(); }
+            @Override public void removeUpdate(DocumentEvent e) { filter(); }
+            @Override public void changedUpdate(DocumentEvent e) { filter(); }
         });
 
         updateWeight.addActionListener(e -> {
             try {
-                int id = Integer.parseInt(loadId.getText().trim());
+                int viewRow = table.getSelectedRow();
+                if (viewRow < 0) throw new IllegalArgumentException("Select a record first.");
+                int modelRow = table.convertRowIndexToModel(viewRow);
+                int id = ((Number) model.getValueAt(modelRow, 0)).intValue();
                 double kg = Double.parseDouble(weight.getText().trim());
                 if (!Double.isFinite(kg) || kg <= 0)
                     throw new IllegalArgumentException("Invalid weight.");
 
                 manager.updateLoadWeight(id, kg);
                 JOptionPane.showMessageDialog(this, "Weight updated!");
-                refreshRecords();
-            } catch (Exception ex) {
-                showError(ex);
-            }
-        });
-
-        updateStatus.addActionListener(e -> {
-            try {
-                int id = Integer.parseInt(loadId.getText().trim());
-                manager.updateLoadState(
-                        id, (ServiceStage) status.getSelectedItem()
-                );
-                JOptionPane.showMessageDialog(this, "Status updated!");
                 refreshRecords();
             } catch (Exception ex) {
                 showError(ex);
@@ -121,7 +114,9 @@ public class RecordsPage extends JPanel {
                         load.getLoadWeight(),
                         load.getServiceType(),
                         load.getLoadStat(),
-                        load.getTimestamp()
+                        load.getTimestamp() == null
+                                ? ""
+                                : load.getTimestamp().format(RECORD_TIME)
                 });
             }
         } catch (Exception ex) {

@@ -79,6 +79,8 @@ public class LaundryAssignmentManager {
                             updStage == ServiceStage.INTERRUPTION;
 
             case INTERRUPTION ->
+                            updStage == ServiceStage.WASHING ||
+                            updStage == ServiceStage.DRYING ||
                             updStage == ServiceStage.QUEUED_WASHER ||
                             updStage == ServiceStage.QUEUED_DRYER ||
                             updStage == ServiceStage.CANCELED;

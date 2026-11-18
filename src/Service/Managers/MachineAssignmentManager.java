@@ -51,8 +51,10 @@ public class MachineAssignmentManager {
         boolean chkStat;
 
         if (load.getLoadStat() == ServiceStage.INTERRUPTION) {
-            chkStat = machine.getMachineType() == MachineType.WASHER
-                    || machine.getMachineType() == MachineType.DRYER;
+            // An interrupted load must continue on the same kind of machine.
+            // The previous assignment is the source of truth for this phase.
+            MachineType interruptedType = findInterruptedMachineType(load.getLoadId());
+            chkStat = machine.getMachineType() == interruptedType;
         } else {
             chkStat = switch (load.getLoadStat()) {
                 case QUEUED_WASHER ->
@@ -191,6 +193,7 @@ public class MachineAssignmentManager {
         Load load = Validator.requireExists(laundryStatRepo.findById(loadId), "Load");
         Machine machine = Validator.requireExists(machineRepo.findById(newMachineId), "Replacement Machine");
         MachineAssignment machineAssignment = Validator.requireExists(mar.findById(assignmentId), "Assigned machine");
+        Machine originalMachine = Validator.requireExists(machineRepo.findById(machineAssignment.getMachineId()), "Original machine");
 
         // STEP 1: Validate interruption
         Validator.requireState(load.getLoadStat() == ServiceStage.INTERRUPTION, "Load is not     interrupted!");
@@ -198,20 +201,24 @@ public class MachineAssignmentManager {
 
         // STEP 2: Verify previous assignment is closed
         Validator.requireState(machineAssignment.getEndedAt() != null, "Previous assignment is not closed!");
+        Validator.requireState(machineAssignment.getStartedAt() != null, "Assignment was never started!");
         Validator.requireState(!mar.hasActiveLoadAssignment(loadId), "Load still has an active assignment!");
 
         // STEP 3: Validate replacement machine
         Validator.requireState(machine.getMachineState() == MachineState.AVAILABLE, "Replacement machine is unavailable!");
         Validator.requireState(machine.getMachineCapacity() >= load.getLoadWeight(), "Load exceeds machine capacity!");
         Validator.requireState(!mar.hasActiveMachineAssignment(newMachineId), "Replacement machine is occupied!");
-        Validator.requireState(machine.getMachineType() == interruptedType, "Replacement machine type is incompatible!");
+        Validator.requireState(originalMachine.getMachineType() == interruptedType, "Original machine type does not match the interrupted phase!");
+        Validator.requireState(machine.getMachineType() == originalMachine.getMachineType(), "Replacement machine type is incompatible with the interrupted phase!");
 
         // STEP 4: Calculate remaining duration
         LocalDateTime start = machineAssignment.getStartedAt();
         LocalDateTime end = machineAssignment.getEndedAt();
 
-        long elapsedTime = Duration.between(start, end).toMinutes();
-        long remainingTime = Math.max(0, machineAssignment.getDurationMinutes() - elapsedTime);
+        long elapsedSeconds = Duration.between(start, end).getSeconds();
+        long remainingSeconds = Math.max(0,
+                machineAssignment.getDurationMinutes() * 60L - elapsedSeconds);
+        long remainingTime = (long) Math.ceil(remainingSeconds / 60.0);
         Validator.requireState(remainingTime > 0, "No remaining duration to reassign!");
 
         // STEP 5: Create replacement assignment
@@ -225,7 +232,15 @@ public class MachineAssignmentManager {
         Load load = Validator.requireExists(laundryStatRepo.findById(ma.getLoadId()), "Load");
         Machine machine = Validator.requireExists(machineRepo.findById(ma.getMachineId()), "Machine");
 
-        // STEP 1: Validate cancellation
+        // An interrupted session is already closed, but may still be canceled.
+        if (load.getLoadStat() == ServiceStage.INTERRUPTION
+                && ma.getStartedAt() != null && ma.getEndedAt() != null) {
+            lam.updateLoadState(load.getLoadId(), ServiceStage.CANCELED);
+            mar.deleteEntry(assignmentId);
+            return;
+        }
+
+        // A normal queued assignment can only be canceled before it starts.
         Validator.requireState(ma.getStartedAt() == null, "Cannot cancel a started session!");
         Validator.requireState(ma.getEndedAt() == null, "Assignment is already closed!");
         Validator.requireState(load.getLoadStat() != ServiceStage.COMPLETED, "Cannot cancel a completed load!");
@@ -247,5 +262,18 @@ public class MachineAssignmentManager {
 
         laundryStatRepo.updateEntry(load);
         machineRepo.updateEntry(machine);
+    }
+
+    private MachineType findInterruptedMachineType(int loadId) {
+        MachineType result = null;
+        for (MachineAssignment assignment : mar.findAll()) {
+            if (assignment.getLoadId() == loadId
+                    && assignment.getStartedAt() != null
+                    && assignment.getEndedAt() != null) {
+                Machine machine = machineRepo.findById(assignment.getMachineId());
+                if (machine != null) result = machine.getMachineType();
+            }
+        }
+        return Validator.requireExists(result, "Interrupted machine type");
     }
 }
